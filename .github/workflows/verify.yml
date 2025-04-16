@@ -1,0 +1,56 @@
+name: verify artifact
+
+on:
+  workflow_call:
+    inputs:
+      artifact-file:
+        required: false
+        type: string
+        description: "the path to a single artifact to verify"
+      owner:
+        required: false
+        type: string
+        description: "the owner of the repository that signed the artifact"
+        default: ${{ github.repository_owner }}
+      repo:
+        required: false
+        type: string
+        description: "the name of the repository that signed the artifact"
+        default: ${{ github.event.repository.name }}
+      workflow_name:
+        required: false
+        type: string
+        description: "the name of the workflow that signed the artifact"
+        default: "sign-artifact.yml"
+
+      # inputs for download-artifact
+      download-artifact:
+        required: false
+        type: boolean
+        default: true
+        description: "uses download-artifact action to download artifacts from a previous job"
+      name:
+        required: false
+        type: string
+        description: "name of the artifact to download"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      # a convenience step to download artifacts from a previous job
+      - name: actions/download-artifact
+        if: ${{ inputs.download-artifact }}
+        uses: actions/download-artifact@4.2.1
+        with:
+          name: ${{ inputs.name }}
+
+      - name: verify
+        env:
+          OWNER: ${{ inputs.owner }}
+          REPO: ${{ inputs.repo }}
+          ARTIFACT_FILE: ${{ inputs.artifact-file }}
+          WORKFLOW_NAME: ${{ inputs.workflow_name }}
+        run: |        
+          gh attestation verify ${ARTIFACT_FILE} --signer-workflow ${OWNER}/${REPO}/.github/workflows/${WORKFLOW_NAME}
