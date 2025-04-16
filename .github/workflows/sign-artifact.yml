@@ -1,0 +1,66 @@
+name: sign artifact
+
+on:
+  workflow_call:
+    inputs:
+      # inputs for attest-build-provenance
+      artifact-path:
+        required: false
+        type: string
+      subject-name:
+        required: false
+        type: string
+      subject-digest:
+        required: false
+        type: string
+      subject-checksums:
+        required: false
+        type: string
+      push-to-registry:
+        required: false
+        type: boolean
+        default: false
+      show-summary:
+        required: false
+        type: boolean
+        default: true
+
+      # inputs for download-artifact
+      download-artifact:
+        required: false
+        type: boolean
+        default: true
+        description: "uses download-artifact action to download artifacts from a previous job"
+      name:
+        required: false
+        type: string
+        description: "name of the artifact to download"
+
+jobs:
+  sign-artifact:
+    runs-on: ubuntu-latest
+
+    # the workflow calling this workflow, must have the following permissions set
+    # https://docs.github.com/en/actions/sharing-automations/reusing-workflows#access-and-permissions
+    permissions:
+      id-token: write
+      attestations: write
+      contents: read
+
+    steps:
+      # a convenience step to download artifacts from a previous job
+      - name: actions/download-artifact
+        if: ${{ inputs.download-artifact }}
+        uses: actions/download-artifact@4.2.1
+        with:
+          name: ${{ inputs.name }}
+
+      - name: attest build provenance
+        uses: actions/attest-build-provenance@2.2.3
+        with:
+          artifact-path: ${{ inputs.artifact-path }}
+          subject-name: ${{ inputs.subject-name }}
+          subject-digest: ${{ inputs.subject-digest }}
+          subject-checksums: ${{ inputs.subject-checksums }}
+          push-to-registry: ${{ inputs.push-to-registry }}
+          show-summary: ${{ inputs.show-summary }}
