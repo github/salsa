@@ -44,6 +44,16 @@ on:
         required: false
         default: true
         type: boolean
+      signing_owner:
+        description: "The owner of the repository that is hosting the reusable workflow for signing"
+        required: false
+        default: github # change to your own org/repo if you forked this repo
+        type: string
+      signing_repo:
+        description: "The name of the repository that is hosting the reusable workflow for signing"
+        required: false
+        default: salsa # change to your own org/repo if you forked this repo
+        type: string
     secrets:
       RUBYGEMS_API_KEY:
         required: false
@@ -163,3 +173,5 @@ jobs:
     with:
       artifact-ids: ${{ needs.build.outputs.artifact-id }}
       artifact-path: "artifact/${{ needs.build.outputs.gem_path }}"
+      signing-owner: ${{ inputs.signing_owner }}
+      signing-repo: ${{ inputs.signing_repo }}

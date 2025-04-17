@@ -17,6 +17,11 @@ on:
         type: string
         description: "the name of the current repository this workflow is running in"
         default: ${{ github.event.repository.name }}
+      signing-owner:
+        required: false
+        type: string
+        description: "the owner of the repository that is hosting the reusable workflow for signing"
+        default: ${{ github.repository_owner }}
       signing-repo:
         required: false
         type: string
@@ -65,6 +70,7 @@ jobs:
         env:
           OWNER: ${{ inputs.owner }}
           REPO: ${{ inputs.repo }}
+          SIGNING_OWNER: ${{ inputs.signing-owner }}
           SIGNING_REPO: ${{ inputs.signing-repo }}
           ARTIFACT_PATH: ${{ inputs.artifact-path }}
           WORKFLOW_NAME: ${{ inputs.workflow_name }}
@@ -75,9 +81,10 @@ jobs:
             ARTIFACT_PATH="."
           fi
           
-          # Convert OWNER, REPO, and SIGNING_REPO to lowercase as expected by the command
+          # Convert OWNER, REPO, and SIGNING_REPO, SIGNING_OWNER to lowercase as expected by the command
           OWNER=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
           REPO=$(echo "$REPO" | tr '[:upper:]' '[:lower:]')
+          SIGNING_OWNER=$(echo "$SIGNING_OWNER" | tr '[:upper:]' '[:lower:]')
           SIGNING_REPO=$(echo "$SIGNING_REPO" | tr '[:upper:]' '[:lower:]')
           
           # Check if the artifact path is a file or directory
@@ -86,10 +93,10 @@ jobs:
             echo "Verifying file: $ARTIFACT_PATH"
             
             # Log the command that will be executed
-            echo "Executing command: gh attestation verify \"$ARTIFACT_PATH\" --repo ${OWNER}/${REPO} --signer-workflow ${OWNER}/${SIGNING_REPO}/.github/workflows/${WORKFLOW_NAME}"
+            echo "Executing command: gh attestation verify \"$ARTIFACT_PATH\" --repo ${OWNER}/${REPO} --signer-workflow ${SIGNING_OWNER}/${SIGNING_REPO}/.github/workflows/${WORKFLOW_NAME}"
             
             # Run the command
-            gh attestation verify "$ARTIFACT_PATH" --repo ${OWNER}/${REPO} --signer-workflow ${OWNER}/${SIGNING_REPO}/.github/workflows/${WORKFLOW_NAME}
+            gh attestation verify "$ARTIFACT_PATH" --repo ${OWNER}/${REPO} --signer-workflow ${SIGNING_OWNER}/${SIGNING_REPO}/.github/workflows/${WORKFLOW_NAME}
           elif [ -d "$ARTIFACT_PATH" ]; then
             echo "Artifact path is a directory: $ARTIFACT_PATH"
             echo "Scanning for files in $ARTIFACT_PATH"
@@ -99,10 +106,10 @@ jobs:
               echo "Verifying file: $file"
               
               # Log the command that will be executed
-              echo "Executing command: gh attestation verify \"$file\" --repo ${OWNER}/${REPO} --signer-workflow ${OWNER}/${SIGNING_REPO}/.github/workflows/${WORKFLOW_NAME}"
+              echo "Executing command: gh attestation verify \"$file\" --repo ${OWNER}/${REPO} --signer-workflow ${SIGNING_OWNER}/${SIGNING_REPO}/.github/workflows/${WORKFLOW_NAME}"
               
               # Run the command
-              gh attestation verify "$file" --repo ${OWNER}/${REPO} --signer-workflow ${OWNER}/${SIGNING_REPO}/.github/workflows/${WORKFLOW_NAME}
+              gh attestation verify "$file" --repo ${OWNER}/${REPO} --signer-workflow ${SIGNING_OWNER}/${SIGNING_REPO}/.github/workflows/${WORKFLOW_NAME}
             done
           else
             echo "Error: Artifact path '$ARTIFACT_PATH' does not exist or is not accessible"
