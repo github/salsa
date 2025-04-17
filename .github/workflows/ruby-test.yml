@@ -1,0 +1,26 @@
+name: ruby-test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  release:
+    permissions:
+      contents: write
+      id-token: write
+      packages: write
+      attestations: write
+    uses: ./.github/workflows/ruby.yml
+    with:
+      build_script: script/build-ruby
+      auto_setup_ruby: true
+      publish_rubygems: false
+      publish_github_packages: false
+      push_github_release: false
+      sign: true
+      verify: true
