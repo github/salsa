@@ -36,10 +36,12 @@ jobs:
       contents: read
     uses: ./.github/workflows/sign-artifact.yml
     with:
+      name: single-test-artifact
       artifact-path: "."
 
   verify:
     needs: sign
     uses: ./.github/workflows/verify.yml
     with:
+      name: single-test-artifact
       artifact-path: "."
