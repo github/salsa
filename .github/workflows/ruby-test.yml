@@ -2,9 +2,6 @@ name: ruby-test
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
@@ -14,8 +11,9 @@ permissions: {}
 jobs:
   release:
     permissions:
-      contents: read
+      contents: write
       id-token: write
+      packages: write
       attestations: write
     uses: ./.github/workflows/ruby.yml
     with:
