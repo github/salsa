@@ -38,6 +38,7 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    permissions: {}
 
     steps:
       # a convenience step to download artifacts from a previous job
@@ -57,6 +58,7 @@ jobs:
           REPO: ${{ inputs.repo }}
           ARTIFACT_PATH: ${{ inputs.artifact-path }}
           WORKFLOW_NAME: ${{ inputs.workflow_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ -z "$ARTIFACT_PATH" ]; then
             echo "No artifact path specified. Using current directory."
