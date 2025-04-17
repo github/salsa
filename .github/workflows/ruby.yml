@@ -1,0 +1,159 @@
+name: ruby
+description: "Build, release, and publish Ruby Gems with SLSA Level 3 Compliance"
+
+on:
+  workflow_call:
+    inputs:
+      auto_setup_ruby:
+        description: "Automatically setup Ruby"
+        required: false
+        default: true
+        type: boolean
+      bootstrap_script:
+        description: "Custom bootstrap script"
+        required: false
+        default: ""
+        type: string
+      build_script:
+        description: "Custom build script"
+        required: false
+        default: "script/build"
+        type: string
+      publish_rubygems:
+        description: "Publish to RubyGems"
+        required: false
+        default: true
+        type: boolean
+      publish_github_packages:
+        description: "Publish to GitHub Packages"
+        required: false
+        default: true
+        type: boolean
+      push_github_release:
+        description: "Push GitHub Release"
+        required: false
+        default: true
+        type: boolean
+      verify:
+        description: "Verify the artifact"
+        required: false
+        default: true
+        type: boolean
+    secrets:
+      RUBYGEMS_API_KEY:
+        required: false
+        description: "RubyGems API key for authentication"
+
+jobs:
+  build:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}
+      gem_name: ${{ steps.build.outputs.gem_name }}
+      gem_version: ${{ steps.build.outputs.gem_version }}
+      gem_path: ${{ steps.build.outputs.gem_path }}
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # pin@v1.229.0
+        if: ${{ inputs.auto_setup_ruby }}
+        with:
+          bundler-cache: false # never use caches when building SLSA compliant artifacts
+
+      - name: bootstrap
+        if: ${{ inputs.bootstrap_script != '' }}
+        run: ${{ inputs.bootstrap_script }}
+
+      # IMPORTANT: this step MUST export for the following outputs:
+      # gem_name: the name of the gem - ex: "my-cool-gem"
+      # gem_version: the version of the gem - ex: "1.0.0"
+      # gem_path: the path/filename of the gem - ex: "my-cool-gem-1.0.0.gem"
+      - name: build
+        id: build
+        run: ${{ inputs.build_script }}
+
+      - name: upload artifact
+        uses: actions/upload-artifact@v4
+        id: upload-artifact
+        with:
+          path: "${{ steps.build.outputs.gem_path }}"
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@54124fbd881f8ce794405a06896c93c49c17463e
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact-id }}
+
+      - name: GitHub Release
+        if: ${{ inputs.push_github_release }}
+        env:
+          GEM_NAME: ${{ needs.build.outputs.gem_name }}
+          GEM_VERSION: ${{ needs.build.outputs.gem_version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_PATH: "artifact"
+        run: |
+          gh release create "v${GEM_VERSION}" \
+            "${ARTIFACT_PATH}/${GEM_NAME}-${GEM_VERSION}.gem" \
+            --title "v${GEM_VERSION}" \
+            --generate-notes
+
+      - name: Publish to GitHub Packages
+        if: ${{ inputs.publish_github_packages }}
+        env:
+          OWNER: ${{ github.repository_owner }}
+          GEM_NAME: ${{ needs.build.outputs.gem_name }}
+          GEM_VERSION: ${{ needs.build.outputs.gem_version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_PATH: "artifact"
+        run: |
+          GEM_HOST_API_KEY=${GITHUB_TOKEN} gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} $ARTIFACT_PATH/${GEM_NAME}-${GEM_VERSION}.gem
+
+      - name: Publish to RubyGems
+        if: ${{ inputs.publish_rubygems }}
+        env:
+          GEM_NAME: ${{ needs.build.outputs.gem_name }}
+          GEM_VERSION: ${{ needs.build.outputs.gem_version }}
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+          ARTIFACT_PATH: "artifact"
+        run: |
+          mkdir -p ~/.gem
+          echo -e "---\n:rubygems_api_key: ${RUBYGEMS_API_KEY}" > ~/.gem/credentials
+          chmod 0600 ~/.gem/credentials
+          gem push ${ARTIFACT_PATH}/${GEM_NAME}-${GEM_VERSION}.gem
+          rm ~/.gem/credentials
+
+  sign:
+    needs: [build, release]
+    permissions:
+      id-token: write
+      attestations: write
+      contents: read
+    uses: github/salsa/.github/workflows/sign-artifact.yml@main # change to your own org/repo if you forked this repo
+    with:
+      artifact-ids: ${{ needs.build.outputs.artifact-id }}
+      artifact-path: "artifact/${{ needs.build.outputs.gem_path }}"
+
+  verify:
+    if: ${{ inputs.verify }}
+    permissions: {}
+    needs: [build, release, sign]
+    uses: github/salsa/.github/workflows/verify.yml@main # change to your own org/repo if you forked this repo
+    with:
+      artifact-ids: ${{ needs.build.outputs.artifact-id }}
+      artifact-path: "artifact/${{ needs.build.outputs.gem_path }}"
