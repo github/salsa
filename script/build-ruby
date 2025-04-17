@@ -25,7 +25,6 @@ if [[ "$CI" == "true" ]]; then
   echo "gem_path=$GEM_NAME-$GEM_VERSION.gem" >> $GITHUB_OUTPUT
 fi
 
-echo "gem_path=$GEM_PATH"
 echo -e "📦 ${GREEN}successfully${OFF} built ${PURPLE}$GEM_NAME-$GEM_VERSION.gem${OFF}"
 
 cd $DIR
