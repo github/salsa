@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       # inputs for attest-build-provenance
-      artifact-path:
+      subject-path:
         required: false
         type: string
       subject-name:
@@ -58,7 +58,7 @@ jobs:
       - name: attest build provenance
         uses: actions/attest-build-provenance@2.2.3
         with:
-          artifact-path: ${{ inputs.artifact-path }}
+          subject-path: ${{ inputs.subject-path }}
           subject-name: ${{ inputs.subject-name }}
           subject-digest: ${{ inputs.subject-digest }}
           subject-checksums: ${{ inputs.subject-checksums }}
