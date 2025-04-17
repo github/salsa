@@ -1,4 +1,4 @@
-name: acceptance-multiple-artifacts
+name: acceptance-single-artifact
 
 on:
   workflow_dispatch:
