@@ -1,6 +1,10 @@
 name: ruby
 description: "Build, release, and publish Ruby Gems with SLSA Level 3 Compliance"
 
+# if using this repo from its source (github/salsa), you can validate gems produced by this workflow via:
+
+# $ gh attestation verify my-cool-gem.gem --repo <repo>/<owner> --signer-workflow github/salsa/.github/workflows/sign-artifact.yml
+
 on:
   workflow_call:
     inputs:
