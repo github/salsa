@@ -75,10 +75,20 @@ jobs:
             ARTIFACT_PATH="."
           fi
           
+          # Convert OWNER, REPO, and SIGNING_REPO to lowercase as expected by the command
+          OWNER=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
+          REPO=$(echo "$REPO" | tr '[:upper:]' '[:lower:]')
+          SIGNING_REPO=$(echo "$SIGNING_REPO" | tr '[:upper:]' '[:lower:]')
+          
           # Check if the artifact path is a file or directory
           if [ -f "$ARTIFACT_PATH" ]; then
             echo "Artifact path is a single file: $ARTIFACT_PATH"
             echo "Verifying file: $ARTIFACT_PATH"
+            
+            # Log the command that will be executed
+            echo "Executing command: gh attestation verify \"$ARTIFACT_PATH\" --repo ${OWNER}/${REPO} --signer-workflow ${OWNER}/${SIGNING_REPO}/.github/workflows/${WORKFLOW_NAME}"
+            
+            # Run the command
             gh attestation verify "$ARTIFACT_PATH" --repo ${OWNER}/${REPO} --signer-workflow ${OWNER}/${SIGNING_REPO}/.github/workflows/${WORKFLOW_NAME}
           elif [ -d "$ARTIFACT_PATH" ]; then
             echo "Artifact path is a directory: $ARTIFACT_PATH"
@@ -87,6 +97,11 @@ jobs:
             # Find all regular files in the artifact path recursively
             find "$ARTIFACT_PATH" -type f | while read -r file; do
               echo "Verifying file: $file"
+              
+              # Log the command that will be executed
+              echo "Executing command: gh attestation verify \"$file\" --repo ${OWNER}/${REPO} --signer-workflow ${OWNER}/${SIGNING_REPO}/.github/workflows/${WORKFLOW_NAME}"
+              
+              # Run the command
               gh attestation verify "$file" --repo ${OWNER}/${REPO} --signer-workflow ${OWNER}/${SIGNING_REPO}/.github/workflows/${WORKFLOW_NAME}
             done
           else
