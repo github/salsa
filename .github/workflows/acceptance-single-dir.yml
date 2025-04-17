@@ -40,7 +40,7 @@ jobs:
       contents: read
     uses: ./.github/workflows/sign-artifact.yml
     with:
-      name: single-test-artifact-dir
+      artifact-ids: ${{ needs.build.outputs.artifact-id }}
       artifact-path: "."
 
   verify:
