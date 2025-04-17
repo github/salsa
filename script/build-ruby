@@ -10,6 +10,8 @@ cd $RUBY_DIR
 GEM_NAME=$(ls | grep gemspec | cut -d. -f1)
 GEM_VERSION=$(gem build $GEM_NAME.gemspec 2>&1 | grep Version | cut -d':' -f 2 | tr -d " \t\n\r")
 
+GEM_PATH="$RUBY_DIR/$GEM_NAME-$GEM_VERSION.gem"
+
 # IMPORTANT: this script MUST export for the following outputs:
 # gem_name: the name of the gem - ex: "my-cool-gem"
 # gem_version: the version of the gem - ex: "1.0.0"
@@ -18,9 +20,10 @@ GEM_VERSION=$(gem build $GEM_NAME.gemspec 2>&1 | grep Version | cut -d':' -f 2 |
 if [[ "$CI" == "true" ]]; then
   echo "gem_name=$GEM_NAME" >> $GITHUB_OUTPUT
   echo "gem_version=$GEM_VERSION" >> $GITHUB_OUTPUT
-  echo "gem_path=$GEM_NAME-$GEM_VERSION.gem" >> $GITHUB_OUTPUT
+  echo "gem_path=$GEM_PATH" >> $GITHUB_OUTPUT
 fi
 
+echo "full gem_path=$GEM_PATH"
 echo -e "📦 ${GREEN}successfully${OFF} built ${PURPLE}$GEM_NAME-$GEM_VERSION.gem${OFF}"
 
 cd $DIR
