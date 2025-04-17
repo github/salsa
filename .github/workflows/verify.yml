@@ -52,7 +52,7 @@ jobs:
       # a convenience step to download artifacts from a previous job
       - name: actions/download-artifact
         if: ${{ inputs.download-artifact }}
-        uses: actions/download-artifact@ac35f995fea643cbfd583dc9c9ace8da5c2f453a
+        uses: actions/download-artifact@b83057b90d3e218abf5c7b1906579eb6c598ae85
         with:
           name: ${{ inputs.name }}
           artifact-ids: ${{ inputs.artifact-ids }}
