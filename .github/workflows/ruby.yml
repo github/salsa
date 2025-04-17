@@ -49,12 +49,15 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     outputs:
       artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}
       gem_name: ${{ steps.build.outputs.gem_name }}
       gem_version: ${{ steps.build.outputs.gem_version }}
       gem_path: ${{ steps.build.outputs.gem_path }}
+
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -106,9 +109,10 @@ jobs:
           GEM_NAME: ${{ needs.build.outputs.gem_name }}
           GEM_VERSION: ${{ needs.build.outputs.gem_version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_PATH: "artifact"
         run: |
           gh release create "v${GEM_VERSION}" \
-            "${GEM_NAME}-${GEM_VERSION}.gem" \
+            "${ARTIFACT_PATH}/${GEM_NAME}-${GEM_VERSION}.gem" \
             --title "v${GEM_VERSION}" \
             --generate-notes
 
@@ -119,8 +123,9 @@ jobs:
           GEM_NAME: ${{ needs.build.outputs.gem_name }}
           GEM_VERSION: ${{ needs.build.outputs.gem_version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_PATH: "artifact"
         run: |
-          GEM_HOST_API_KEY=${GITHUB_TOKEN} gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} ${GEM_NAME}-${GEM_VERSION}.gem
+          GEM_HOST_API_KEY=${GITHUB_TOKEN} gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} $ARTIFACT_PATH/${GEM_NAME}-${GEM_VERSION}.gem
 
       - name: Publish to RubyGems
         if: ${{ inputs.publish_rubygems }}
@@ -128,11 +133,12 @@ jobs:
           GEM_NAME: ${{ needs.build.outputs.gem_name }}
           GEM_VERSION: ${{ needs.build.outputs.gem_version }}
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+          ARTIFACT_PATH: "artifact"
         run: |
           mkdir -p ~/.gem
           echo -e "---\n:rubygems_api_key: ${RUBYGEMS_API_KEY}" > ~/.gem/credentials
           chmod 0600 ~/.gem/credentials
-          gem push ${GEM_NAME}-${GEM_VERSION}.gem
+          gem push ${ARTIFACT_PATH}/${GEM_NAME}-${GEM_VERSION}.gem
           rm ~/.gem/credentials
 
   sign:
