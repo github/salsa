@@ -1,5 +1,15 @@
 # 💃 SALSA 💃
 
+![SLSA Level 3](./docs/assets/slsa-level3.svg)
+[![ruby-test](https://github.com/github/salsa/actions/workflows/ruby-test.yml/badge.svg)](https://github.com/github/salsa/actions/workflows/ruby-test.yml)
+[![acceptance-multiple-artifacts](https://github.com/github/salsa/actions/workflows/acceptance-multi.yml/badge.svg)](https://github.com/github/salsa/actions/workflows/acceptance-multi.yml)
+[![acceptance-single-artifact](https://github.com/github/salsa/actions/workflows/acceptance-single.yml/badge.svg)](https://github.com/github/salsa/actions/workflows/acceptance-single.yml)
+[![acceptance-single-artifact-dir](https://github.com/github/salsa/actions/workflows/acceptance-single-dir.yml/badge.svg)](https://github.com/github/salsa/actions/workflows/acceptance-single-dir.yml)
+[![acceptance-single-artifact-file](https://github.com/github/salsa/actions/workflows/acceptance-single-file.yml/badge.svg)](https://github.com/github/salsa/actions/workflows/acceptance-single-file.yml)
+[![acceptance-single-artifact-id-only](https://github.com/github/salsa/actions/workflows/acceptance-artifact-id-only.yml/badge.svg)](https://github.com/github/salsa/actions/workflows/acceptance-artifact-id-only.yml)
+[![CodeQL](https://github.com/github/salsa/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/github/salsa/actions/workflows/github-code-scanning/codeql)
+[![Dependabot Updates](https://github.com/github/salsa/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/github/salsa/actions/workflows/dependabot/dependabot-updates)
+
 Supply-chain Levels for Software Artifacts, or [SLSA](https://slsa.dev/) ("salsa") is a security framework, a checklist of standards and controls to prevent tampering, improve integrity, and secure packages and infrastructure.
 
 This repository contains a set of reusable GitHub Actions workflows to help you build your own SLSA Level 3 compliant pipeline.
