@@ -25,6 +25,7 @@ jobs:
       - name: upload artifact
         uses: actions/upload-artifact@4.6.2
         with:
+          name: single-test-artifact
           path: dist/
 
   sign:
