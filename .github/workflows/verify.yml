@@ -3,10 +3,10 @@ name: verify artifact
 on:
   workflow_call:
     inputs:
-      artifact-file:
+      artifact-path:
         required: false
         type: string
-        description: "the path to a single artifact to verify"
+        description: "the path to all the artifacts to verify"
       owner:
         required: false
         type: string
@@ -50,7 +50,18 @@ jobs:
         env:
           OWNER: ${{ inputs.owner }}
           REPO: ${{ inputs.repo }}
-          ARTIFACT_FILE: ${{ inputs.artifact-file }}
+          ARTIFACT_PATH: ${{ inputs.artifact-path }}
           WORKFLOW_NAME: ${{ inputs.workflow_name }}
-        run: |        
-          gh attestation verify ${ARTIFACT_FILE} --signer-workflow ${OWNER}/${REPO}/.github/workflows/${WORKFLOW_NAME}
+        run: |
+          if [ -z "$ARTIFACT_PATH" ]; then
+            echo "No artifact path specified. Using current directory."
+            ARTIFACT_PATH="."
+          fi
+          
+          echo "scanning for files in $ARTIFACT_PATH"
+          
+          # Find all regular files in the artifact path recursively
+          find "$ARTIFACT_PATH" -type f | while read -r file; do
+            echo "verifying file: $file"
+            gh attestation verify "$file" --signer-workflow ${OWNER}/${REPO}/.github/workflows/${WORKFLOW_NAME}
+          done
