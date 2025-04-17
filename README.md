@@ -31,6 +31,8 @@ This project provides a set of reusable workflows to help you achieve all of the
 
 ## Examples 📸
 
+> All of the following examples demonstrate SLSA level 3 compliance. If you have an example of your own, please feel free to submit a PR and we will add it to the list.
+
 To start off the example section, it is best to look at a pseudo-code example of a stripped down workflow that shows the basic structure of a SLSA Level 3 compliant workflow.
 
 ```yaml
@@ -123,7 +125,7 @@ jobs:
       artifact-path: "." # look in the current dir and verify all the artifacts in there
 ```
 
-### GoLang SLSA Level 3 Example
+### GoLang
 
 The following example shows how a GoLang project can adopt these workflows into an existing release workflow to achieve SLSA Level 3 compliance.
 
@@ -201,3 +203,7 @@ jobs:
       artifact-ids: ${{ needs.release.outputs.artifact-id }} # download the artifacts from the release job
       artifact-path: "." # look in the current dir and verify all the artifacts in there
 ```
+
+### Ruby
+
+Here is an example of bringing an existing Ruby project to SLSA Level 3 in a [single commit](https://github.com/runwaylab/issue-db/commit/ab57f24f3e906b3485d588dbee4882c4b9027b92).
