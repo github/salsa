@@ -77,7 +77,7 @@ jobs:
             # Find all regular files in the artifact path recursively
             find "$ARTIFACT_PATH" -type f | while read -r file; do
               echo "Verifying file: $file"
-              gh attestation verify "$file" --signer-workflow ${OWNER}/${REPO}/.github/workflows/${WORKFLOW_NAME}
+              gh attestation verify "$file" --signer-workflow ${OWNER}/${REPO}/.github/workflows/${WORKFLOW_NAME} --repo ${OWNER}/${REPO}
             done
           else
             echo "Error: Artifact path '$ARTIFACT_PATH' does not exist or is not accessible"
