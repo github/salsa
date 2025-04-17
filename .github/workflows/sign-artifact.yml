@@ -35,6 +35,7 @@ on:
         required: false
         type: string
         description: "name of the artifact to download"
+        default: "artifact"
 
 jobs:
   sign-artifact:
@@ -54,6 +55,10 @@ jobs:
         uses: actions/download-artifact@4.2.1
         with:
           name: ${{ inputs.name }}
+
+      - name: list artifacts
+        if : ${{ inputs.download-artifact }}
+        run: ls -R
 
       - name: attest build provenance
         uses: actions/attest-build-provenance@2.2.3

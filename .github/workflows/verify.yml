@@ -33,6 +33,7 @@ on:
         required: false
         type: string
         description: "name of the artifact to download"
+        default: "artifact"
 
 jobs:
   verify:
@@ -45,6 +46,10 @@ jobs:
         uses: actions/download-artifact@4.2.1
         with:
           name: ${{ inputs.name }}
+
+      - name: list artifacts
+        if : ${{ inputs.download-artifact }}
+        run: ls -R
 
       - name: verify
         env:
