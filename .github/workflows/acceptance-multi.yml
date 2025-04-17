@@ -15,6 +15,8 @@ jobs:
   build:
     permissions: {}
     runs-on: ubuntu-latest
+    outputs:
+      artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}
 
     steps:
       - name: create test artifacts
@@ -28,6 +30,7 @@ jobs:
 
       - name: upload artifact
         uses: actions/upload-artifact@4.6.2
+        id: upload-artifact
         with:
           path: dist/
 
