@@ -1,4 +1,4 @@
-name: acceptance-single-artifact-dir
+name: acceptance-single-artifact-id-only
 
 on:
   workflow_dispatch:
@@ -40,12 +40,12 @@ jobs:
       contents: read
     uses: ./.github/workflows/sign-artifact.yml
     with:
-      artifact-ids: ${{ needs.build.outputs.artifact-id }} # partially uses id here and name below
+      artifact-ids: ${{ needs.build.outputs.artifact-id }}
       artifact-path: "."
 
   verify:
-    needs: sign
+    needs: [build, sign]
     uses: ./.github/workflows/verify.yml
     with:
-      name: single-test-artifact-dir
+      artifact-ids: ${{ needs.build.outputs.artifact-id }}
       artifact-path: "."

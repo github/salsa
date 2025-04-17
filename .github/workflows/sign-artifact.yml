@@ -32,11 +32,14 @@ on:
         type: boolean
         default: true
         description: "uses download-artifact action to download artifacts from a previous job"
+      artifact-ids:
+        required: false
+        type: string
+        description: "the id of the artifact to download (preferred over name)"
       name:
         required: false
         type: string
-        description: "name of the artifact to download"
-        default: "artifact"
+        description: "name of the artifact to download (you should use artifact-id instead)"
 
 jobs:
   sign-artifact:
@@ -53,9 +56,10 @@ jobs:
       # a convenience step to download artifacts from a previous job
       - name: actions/download-artifact
         if: ${{ inputs.download-artifact }}
-        uses: actions/download-artifact@4.2.1
+        uses: actions/download-artifact@ac35f995fea643cbfd583dc9c9ace8da5c2f453a
         with:
           name: ${{ inputs.name }}
+          artifact-ids: ${{ inputs.artifact-ids }}
 
       - name: list artifacts
         if : ${{ inputs.download-artifact }}
