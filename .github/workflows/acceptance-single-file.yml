@@ -1,0 +1,48 @@
+name: acceptance-single-artifact-file
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  build:
+    permissions: {}
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}
+
+    steps:
+      - name: create test artifact
+        run: echo "test artifact" > test-artifact.txt
+
+      - name: upload artifact
+        uses: actions/upload-artifact@4.6.2
+        id: upload-artifact
+        with:
+          name: single-test-artifact-file
+          path: test-artifact.txt
+
+  sign:
+    needs: build
+    permissions:
+      id-token: write
+      attestations: write
+      contents: read
+    uses: ./.github/workflows/sign-artifact.yml
+    with:
+      name: single-test-artifact-file
+      artifact-path: "."
+
+  verify:
+    needs: sign
+    uses: ./.github/workflows/verify.yml
+    with:
+      name: single-test-artifact-file
+      artifact-path: "."

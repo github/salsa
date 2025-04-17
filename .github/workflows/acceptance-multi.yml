@@ -1,0 +1,51 @@
+name: acceptance-multiple-artifacts
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  build:
+    permissions: {}
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}
+
+    steps:
+      - name: create test artifacts
+        run: |
+          mkdir -p dist
+          echo "test artifact" > dist/test-artifact1.txt
+          echo "test artifact" > dist/test-artifact2.txt
+          echo "test artifact" > dist/test-artifact3.txt
+          echo "test artifact" > dist/test-artifact4.txt
+          echo "test artifact" > dist/test-artifact5.txt
+
+      - name: upload artifact
+        uses: actions/upload-artifact@4.6.2
+        id: upload-artifact
+        with:
+          path: dist/
+
+  sign:
+    needs: build
+    permissions:
+      id-token: write
+      attestations: write
+      contents: read
+    uses: ./.github/workflows/sign-artifact.yml
+    with:
+      artifact-path: "."
+
+  verify:
+    needs: sign
+    uses: ./.github/workflows/verify.yml
+    with:
+      artifact-path: "."
