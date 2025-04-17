@@ -40,7 +40,6 @@ on:
         required: false
         type: string
         description: "name of the artifact to download (you should use artifact-id instead)"
-        default: "artifact"
 
 jobs:
   sign-artifact:
