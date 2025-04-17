@@ -40,9 +40,6 @@ on:
         default: true
         type: boolean
     secrets:
-      GITHUB_TOKEN:
-        required: false
-        description: "GitHub token for authentication"
       RUBYGEMS_API_KEY:
         required: false
         description: "RubyGems API key for authentication"
