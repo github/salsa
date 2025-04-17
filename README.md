@@ -285,4 +285,14 @@ fi
 echo -e "📦 ${GREEN}successfully${OFF} built ${PURPLE}$GEM_NAME-$GEM_VERSION.gem${OFF}"
 ```
 
+An important note about the `script/build` script and this pre-built Ruby workflow is that it makes the following assumptions:
+
+- The `gemspec` file should be in the root of the repository
+- The resulting `.gem` file that gets built should be in the root of the repository
+- The `script/build` script should export the following variables to `$GITHUB_OUTPUT`:
+  - `gem_name`: the name of the gem (ex: `my-cool-gem`)
+  - `gem_version`: the version of the gem (ex: `1.0.0`)
+  - `gem_path`: the path/filename of the gem (ex: `my-cool-gem-1.0.0.gem`) (remember, in the root of the repo)
+- Only one Gem is built (this is a limitation of the current implementation)
+
 Here is a live example of this custom Ruby SLSA Level 3 releaser in Action: [grantbirki/net-http-ext](https://github.com/GrantBirki/net-http-ext/blob/920e98f97cf80e68efc3a2018e508492557949c2/.github/workflows/release.yml)
