@@ -1,4 +1,4 @@
-name: acceptance-single-artifact
+name: acceptance-single-artifact-file
 
 on:
   workflow_dispatch:
@@ -18,15 +18,13 @@ jobs:
 
     steps:
       - name: create test artifact
-        run: |
-          mkdir -p dist
-          echo "test artifact" > dist/test-artifact.txt
+        run: echo "test artifact" > test-artifact.txt
 
       - name: upload artifact
         uses: actions/upload-artifact@4.6.2
         with:
-          name: single-test-artifact
-          path: dist/
+          name: single-test-artifact-file
+          path: test-artifact.txt
 
   sign:
     needs: build
@@ -36,12 +34,12 @@ jobs:
       contents: read
     uses: ./.github/workflows/sign-artifact.yml
     with:
-      name: single-test-artifact
+      name: single-test-artifact-file
       artifact-path: "."
 
   verify:
     needs: sign
     uses: ./.github/workflows/verify.yml
     with:
-      name: single-test-artifact
+      name: single-test-artifact-file
       artifact-path: "."
