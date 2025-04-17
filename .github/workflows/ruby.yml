@@ -64,12 +64,16 @@ jobs:
       - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # pin@v1.229.0
         if: ${{ inputs.auto_setup_ruby }}
         with:
-          bundler-cache: false
+          bundler-cache: false # never use caches when building SLSA compliant artifacts
 
       - name: bootstrap
         if: ${{ inputs.bootstrap_script != '' }}
         run: ${{ inputs.bootstrap_script }}
 
+      # IMPORTANT: this step MUST export for the following outputs:
+      # gem_name: the name of the gem - ex: "my-cool-gem"
+      # gem_version: the version of the gem - ex: "1.0.0"
+      # gem_path: the path/filename of the gem - ex: "my-cool-gem-1.0.0.gem"
       - name: build
         id: build
         run: ${{ inputs.build_script }}
