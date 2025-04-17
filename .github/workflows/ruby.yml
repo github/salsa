@@ -34,6 +34,11 @@ on:
         required: false
         default: true
         type: boolean
+      sign:
+        description: "Sign the artifact"
+        required: false
+        default: true
+        type: boolean
       verify:
         description: "Verify the artifact"
         required: false
@@ -139,6 +144,7 @@ jobs:
           rm ~/.gem/credentials
 
   sign:
+    if: ${{ inputs.sign }}
     needs: [build, release]
     permissions:
       id-token: write
