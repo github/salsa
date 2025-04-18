@@ -2,6 +2,7 @@
 
 ![SLSA Level 3](./docs/assets/slsa-level3.svg)
 [![ruby-test](https://github.com/github/salsa/actions/workflows/ruby-test.yml/badge.svg)](https://github.com/github/salsa/actions/workflows/ruby-test.yml)
+[![ruby-test-non-defaults](https://github.com/github/salsa/actions/workflows/ruby-test-non-defaults.yml/badge.svg)](https://github.com/github/salsa/actions/workflows/ruby-test-non-defaults.yml)
 [![acceptance-multiple-artifacts](https://github.com/github/salsa/actions/workflows/acceptance-multi.yml/badge.svg)](https://github.com/github/salsa/actions/workflows/acceptance-multi.yml)
 [![acceptance-single-artifact](https://github.com/github/salsa/actions/workflows/acceptance-single.yml/badge.svg)](https://github.com/github/salsa/actions/workflows/acceptance-single.yml)
 [![acceptance-single-artifact-dir](https://github.com/github/salsa/actions/workflows/acceptance-single-dir.yml/badge.svg)](https://github.com/github/salsa/actions/workflows/acceptance-single-dir.yml)
