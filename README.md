@@ -135,6 +135,91 @@ jobs:
       artifact-path: "." # look in the current dir and verify all the artifacts in there
 ```
 
+### Ruby
+
+This project comes with a pre-built reusable workflow specifically catered towards building Ruby Gems. Here is how you can use it:
+
+```yaml
+name: release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - lib/version.rb # example of a file that would trigger a release
+
+permissions: {}
+
+jobs:
+  release:
+    permissions:
+      contents: write
+      id-token: write
+      packages: write
+      attestations: write
+    uses: github/salsa/.github/workflows/ruby.yml@8dcc6862bc15683d9841f2da7cba5ad7570e2c38 # pin@v0.3.0
+    with:
+      bootstrap_script: script/bootstrap # path to the script that bootstraps the project (optional)
+      build_script: script/build # path to the script that builds the gem
+      auto_setup_ruby: true # whether or not to automatically call the setup-ruby action
+      setup_ruby_action_version: v1 # the version of https://github.com/ruby/setup-ruby to use
+      ruby_version: 3.4 # the version of Ruby to use with the setup-ruby action (or it reads from .ruby-version if unset)
+      publish_rubygems: true # whether or not to publish the gem to rubygems.org
+      publish_github_packages: true # whether or not to publish the gem to GitHub Packages
+      push_github_release: true # whether or not to push a release to GitHub
+      sign: true # whether or not to sign the gem
+      verify: true # whether or not to verify the gem after it is signed
+    secrets:
+      RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }} # required for publishing to rubygems.org
+```
+
+Example of a custom `script/bootstrap` script:
+
+```bash
+#! /usr/bin/env bash
+set -e
+
+bundle install
+```
+
+Example of a custom `script/build` script:
+
+```bash
+#! /usr/bin/env bash
+
+set -e
+
+GEM_NAME=$(ls | grep gemspec | cut -d. -f1)
+GEM_VERSION=$(gem build $GEM_NAME.gemspec 2>&1 | grep Version | cut -d':' -f 2 | tr -d " \t\n\r")
+
+# IMPORTANT: this script MUST export for the following outputs:
+# gem_name: the name of the gem - ex: "my-cool-gem"
+# gem_version: the version of the gem - ex: "1.0.0"
+# gem_path: the path/filename of the gem - ex: "my-cool-gem-1.0.0.gem"
+# Here is an example doing exactly that:
+if [[ "$CI" == "true" ]]; then
+  echo "gem_name=$GEM_NAME" >> $GITHUB_OUTPUT
+  echo "gem_version=$GEM_VERSION" >> $GITHUB_OUTPUT
+  echo "gem_path=$GEM_NAME-$GEM_VERSION.gem" >> $GITHUB_OUTPUT
+fi
+
+echo -e "📦 ${GREEN}successfully${OFF} built ${PURPLE}$GEM_NAME-$GEM_VERSION.gem${OFF}"
+```
+
+An important note about the `script/build` script and this pre-built Ruby workflow is that it makes the following assumptions:
+
+- The `gemspec` file should be in the root of the repository
+- The resulting `.gem` file that gets built should be in the root of the repository
+- The `script/build` script should export the following variables to `$GITHUB_OUTPUT`:
+  - `gem_name`: the name of the gem (ex: `my-cool-gem`)
+  - `gem_version`: the version of the gem (ex: `1.0.0`)
+  - `gem_path`: the path/filename of the gem (ex: `my-cool-gem-1.0.0.gem`) (remember, in the root of the repo)
+- Only one Gem is built (this is a limitation of the current implementation)
+
+Here is a live example of this custom Ruby SLSA Level 3 releaser in Action: [grantbirki/net-http-ext](https://github.com/GrantBirki/net-http-ext/blob/439b511908bde9bd448cc473d9a34968ea224061/.github/workflows/release.yml)
+
 ### GoLang
 
 The following example shows how a GoLang project can adopt these workflows into an existing release workflow to achieve SLSA Level 3 compliance.
@@ -213,88 +298,3 @@ jobs:
       artifact-ids: ${{ needs.release.outputs.artifact-id }} # download the artifacts from the release job
       artifact-path: "." # look in the current dir and verify all the artifacts in there
 ```
-
-### Ruby
-
-This project comes with a pre-built reusable workflow specifically catered towards building Ruby Gems. Here is how you can use it:
-
-```yaml
-name: release
-
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - lib/version.rb # example of a file that would trigger a release
-
-permissions: {}
-
-jobs:
-  release:
-    permissions:
-      contents: write
-      id-token: write
-      packages: write
-      attestations: write
-    uses: github/salsa/.github/workflows/ruby.yml@71b69de4b69b37bbbeae5a7d2fec9d7aab05bc30 # pin@main
-    with:
-      bootstrap_script: script/bootstrap # path to the script that bootstraps the project (optional)
-      build_script: script/build # path to the script that builds the gem
-      auto_setup_ruby: true # whether or not to automatically call the setup-ruby action
-      setup_ruby_action_version: v1 # the version of https://github.com/ruby/setup-ruby to use
-      ruby_version: 3.4 # the version of Ruby to use with the setup-ruby action (or it reads from .ruby-version if unset)
-      publish_rubygems: true # whether or not to publish the gem to rubygems.org
-      publish_github_packages: true # whether or not to publish the gem to GitHub Packages
-      push_github_release: true # whether or not to push a release to GitHub
-      sign: true # whether or not to sign the gem
-      verify: true # whether or not to verify the gem after it is signed
-    secrets:
-      RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }} # required for publishing to rubygems.org
-```
-
-Example of a custom `script/bootstrap` script:
-
-```bash
-#! /usr/bin/env bash
-set -e
-
-bundle install
-```
-
-Example of a custom `script/build` script:
-
-```bash
-#! /usr/bin/env bash
-
-set -e
-
-GEM_NAME=$(ls | grep gemspec | cut -d. -f1)
-GEM_VERSION=$(gem build $GEM_NAME.gemspec 2>&1 | grep Version | cut -d':' -f 2 | tr -d " \t\n\r")
-
-# IMPORTANT: this script MUST export for the following outputs:
-# gem_name: the name of the gem - ex: "my-cool-gem"
-# gem_version: the version of the gem - ex: "1.0.0"
-# gem_path: the path/filename of the gem - ex: "my-cool-gem-1.0.0.gem"
-# Here is an example doing exactly that:
-if [[ "$CI" == "true" ]]; then
-  echo "gem_name=$GEM_NAME" >> $GITHUB_OUTPUT
-  echo "gem_version=$GEM_VERSION" >> $GITHUB_OUTPUT
-  echo "gem_path=$GEM_NAME-$GEM_VERSION.gem" >> $GITHUB_OUTPUT
-fi
-
-echo -e "📦 ${GREEN}successfully${OFF} built ${PURPLE}$GEM_NAME-$GEM_VERSION.gem${OFF}"
-```
-
-An important note about the `script/build` script and this pre-built Ruby workflow is that it makes the following assumptions:
-
-- The `gemspec` file should be in the root of the repository
-- The resulting `.gem` file that gets built should be in the root of the repository
-- The `script/build` script should export the following variables to `$GITHUB_OUTPUT`:
-  - `gem_name`: the name of the gem (ex: `my-cool-gem`)
-  - `gem_version`: the version of the gem (ex: `1.0.0`)
-  - `gem_path`: the path/filename of the gem (ex: `my-cool-gem-1.0.0.gem`) (remember, in the root of the repo)
-- Only one Gem is built (this is a limitation of the current implementation)
-
-Here is a live example of this custom Ruby SLSA Level 3 releaser in Action: [grantbirki/net-http-ext](https://github.com/GrantBirki/net-http-ext/blob/920e98f97cf80e68efc3a2018e508492557949c2/.github/workflows/release.yml)
