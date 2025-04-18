@@ -89,7 +89,11 @@ jobs:
         if: ${{ inputs.auto_setup_ruby }}
         with:
           uses: ruby/setup-ruby@${{ inputs.setup_ruby_version }}
-          with: '{ "bundler-cache": false }' # never use caches when building SLSA compliant artifacts
+          # never use caches when building SLSA compliant artifacts
+          with: |
+            {
+              bundler-cache: true
+            }
 
       - name: bootstrap
         if: ${{ inputs.bootstrap_script != '' }}
