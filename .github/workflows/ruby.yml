@@ -97,7 +97,7 @@ jobs:
           # never use caches when building SLSA compliant artifacts
           with: |
             {
-              bundler-cache: false
+              bundler-cache: false,
               ruby-version: ${{ toJSON(inputs.ruby_version) }}
             }
 
