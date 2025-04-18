@@ -13,6 +13,11 @@ on:
         required: false
         default: true
         type: boolean
+      setup_ruby_version:
+        description: "Version of ruby/setup-ruby action to use. Can be a tag (v1) or full SHA"
+        required: false
+        default: "354a1ad156761f5ee2b7b13fa8e09943a5e8d252" # v1.229.0
+        type: string
       bootstrap_script:
         description: "Custom bootstrap script"
         required: false
@@ -80,10 +85,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # pin@v1.229.0
+      - uses: jenseng/dynamic-uses@f972650db6e7523890d27533271417f58681cf5b
         if: ${{ inputs.auto_setup_ruby }}
         with:
-          bundler-cache: false # never use caches when building SLSA compliant artifacts
+          uses: ruby/setup-ruby@${{ inputs.setup_ruby_version }}
+          with: '{ "bundler-cache": false }' # never use caches when building SLSA compliant artifacts
 
       - name: bootstrap
         if: ${{ inputs.bootstrap_script != '' }}
