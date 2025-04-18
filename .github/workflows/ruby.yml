@@ -13,10 +13,15 @@ on:
         required: false
         default: true
         type: boolean
-      setup_ruby_version:
+      setup_ruby_action_version:
         description: "Version of ruby/setup-ruby action to use. Can be a tag (v1) or full SHA"
         required: false
         default: "354a1ad156761f5ee2b7b13fa8e09943a5e8d252" # v1.229.0
+        type: string
+      setup_ruby_version:
+        description: "Ruby version to use with the ruby/setup-ruby action"
+        required: false
+        default: "default" # https://github.com/ruby/setup-ruby/blob/bcde69c47cdb20b0cfd224b38aaca0d96e17d442/action.yml#L8-L10
         type: string
       bootstrap_script:
         description: "Custom bootstrap script"
@@ -88,11 +93,12 @@ jobs:
       - uses: jenseng/dynamic-uses@f972650db6e7523890d27533271417f58681cf5b
         if: ${{ inputs.auto_setup_ruby }}
         with:
-          uses: ruby/setup-ruby@${{ inputs.setup_ruby_version }}
+          uses: ruby/setup-ruby@${{ inputs.setup_ruby_action_version }}
           # never use caches when building SLSA compliant artifacts
           with: |
             {
               bundler-cache: false
+              ruby-version: ${{ inputs.setup_ruby_version }}
             }
 
       - name: bootstrap
