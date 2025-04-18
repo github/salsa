@@ -1,0 +1,28 @@
+name: ruby-test-non-defaults
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  release:
+    permissions:
+      contents: write
+      id-token: write
+      packages: write
+      attestations: write
+    uses: ./.github/workflows/ruby.yml
+    with:
+      build_script: script/build-ruby
+      auto_setup_ruby: true
+      ruby_version: 3.3
+      setup_ruby_action_version: v1
+      publish_rubygems: false
+      publish_github_packages: false
+      push_github_release: false
+      sign: true
+      verify: true
