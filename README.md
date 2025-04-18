@@ -243,6 +243,8 @@ jobs:
       bootstrap_script: script/bootstrap # path to the script that bootstraps the project (optional)
       build_script: script/build # path to the script that builds the gem
       auto_setup_ruby: true # whether or not to automatically call the setup-ruby action
+      setup_ruby_action_version: v1 # the version of https://github.com/ruby/setup-ruby to use
+      ruby_version: 3.4 # the version of Ruby to use with the setup-ruby action (or it reads from .ruby-version if unset)
       publish_rubygems: true # whether or not to publish the gem to rubygems.org
       publish_github_packages: true # whether or not to publish the gem to GitHub Packages
       push_github_release: true # whether or not to push a release to GitHub
