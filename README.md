@@ -206,7 +206,7 @@ if [[ "$CI" == "true" ]]; then
   echo "gem_path=$GEM_NAME-$GEM_VERSION.gem" >> $GITHUB_OUTPUT
 fi
 
-echo -e "📦 ${GREEN}successfully${OFF} built ${PURPLE}$GEM_NAME-$GEM_VERSION.gem${OFF}"
+echo "📦 successfully built $GEM_NAME-$GEM_VERSION.gem"
 ```
 
 An important note about the `script/build` script and this pre-built Ruby workflow is that it makes the following assumptions:
