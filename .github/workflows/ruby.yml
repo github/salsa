@@ -92,7 +92,7 @@ jobs:
           # never use caches when building SLSA compliant artifacts
           with: |
             {
-              bundler-cache: true
+              bundler-cache: false
             }
 
       - name: bootstrap
